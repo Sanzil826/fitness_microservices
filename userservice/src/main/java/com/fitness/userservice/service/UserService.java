@@ -3,6 +3,8 @@ package com.fitness.userservice.service;
 import com.fitness.userservice.dto.request.RegisterRequest;
 import com.fitness.userservice.dto.response.UserResponse;
 import com.fitness.userservice.entity.UserEntity;
+import com.fitness.userservice.exception.DuplicateResourceException;
+import com.fitness.userservice.exception.ResourceNotFoundException;
 import com.fitness.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,21 +20,13 @@ public class UserService {
 
     public UserResponse getUserProfile(String userId) {
         UserEntity userFound = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
 //        if(userFound.isEmpty()){
 //            throw new RuntimeException("User Not found of id: "+ userId);
 //        }
 
-        UserResponse userResponse = new UserResponse();
-        userResponse.setId(userFound.getId());
-        userResponse.setEmail(userFound.getEmail());
-        userResponse.setFirstName(userFound.getFirstName());
-        userResponse.setLastName(userFound.getLastName());
-        userResponse.setCreatedAt(userFound.getCreatedAt());
-        userResponse.setUpdatedAt(userFound.getUpdatedAt());
-
-        return userResponse;
+        return mapToDto(userFound);
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -43,7 +37,7 @@ public class UserService {
 //        }
 
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists!");
+            throw new DuplicateResourceException("Email already exists!");
         }
 
         UserEntity user = new UserEntity();
@@ -54,14 +48,17 @@ public class UserService {
 
         UserEntity savedUser = userRepository.save(user);
 
-        UserResponse userResponse = new UserResponse();
-        userResponse.setId(savedUser.getId());
-        userResponse.setEmail(savedUser.getEmail());
-        userResponse.setFirstName(savedUser.getFirstName());
-        userResponse.setLastName(savedUser.getLastName());
-        userResponse.setCreatedAt(savedUser.getCreatedAt());
-        userResponse.setUpdatedAt(savedUser.getUpdatedAt());
+        return mapToDto(savedUser);
+    }
 
-        return userResponse;
+    private UserResponse mapToDto(UserEntity user){
+        UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setFirstName(user.getFirstName());
+        userResponse.setLastName(user.getLastName());
+        userResponse.setCreatedAt(user.getCreatedAt());
+        userResponse.setUpdatedAt(user.getUpdatedAt());
+        return  userResponse;
     }
 }
