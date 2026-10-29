@@ -6,10 +6,12 @@ import com.fitness.userservice.entity.UserEntity;
 import com.fitness.userservice.exception.DuplicateResourceException;
 import com.fitness.userservice.exception.ResourceNotFoundException;
 import com.fitness.userservice.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -60,5 +62,10 @@ public class UserService {
         userResponse.setCreatedAt(user.getCreatedAt());
         userResponse.setUpdatedAt(user.getUpdatedAt());
         return  userResponse;
+    }
+
+    public Boolean existsByUserId(String userId) {
+        log.info("Calling User Validation Api for userId: {} ", userId);
+        return userRepository.existsById(userId);
     }
 }
