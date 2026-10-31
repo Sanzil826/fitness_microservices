@@ -80,7 +80,7 @@ public class ActivityAiService {
                 .activityId(activity.getId())
                 .userId(activity.getUserId())
                 .activityType(activity.getType())
-                .recommendation("Unable to generate deatiled analysis")
+                .recommendation("Unable to generate detailed analysis")
                 .improvements(Collections.singletonList("Continue with your current routine"))
                 .suggestions(Collections.singletonList("Consider consulting a proffesional for help"))
                 .safety(Arrays.asList(
@@ -133,9 +133,11 @@ public class ActivityAiService {
     }
 
     private void addAnalysisSection(StringBuilder fullAnalysis, JsonNode analysisNode, String key, String prefix) {
+        JsonNode value = analysisNode.path(key);
+
         if(!analysisNode.path(key).isMissingNode()){
             fullAnalysis.append(prefix)
-                    .append(analysisNode.path(key).asToken())
+                    .append(value.asText())
                     .append("\n\n");
         }
     }
@@ -150,19 +152,19 @@ public class ActivityAiService {
                         "heartRace" : "Heart rate analysis here",
                         "caloriesBurned" : "Calories analysis here"
                         },
-                        "improvements": [
+                    "improvements": [
                         {
                             "area": "Area name",
                             "recommendation": "Detailed Recommendation"
                         }
                         ],
-                        "suggestions": [
+                    "suggestions": [
                         {
                             "workout": "Workout name",
                             "description": "Detailed workout description"
                         }
                         ],
-                        "safety":[
+                    "safety":[
                             "safety point 1",
                             "safety point 2"
                         ]
