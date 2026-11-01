@@ -11,6 +11,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,23 +43,22 @@ public class AcitivityController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<ActivityResponseDto>> getAllActivities(
-            @PageableDefault(size = 2) Pageable pageable) {
-
-        Sort sort = Sort.by(
-                Sort.Direction.DESC, "createdAt")
-                .and(Sort.by(
-                Sort.Direction.DESC, "updatedAt"
-        ));
+    public ResponseEntity<PagedModel<EntityModel<ActivityResponseDto>>> getAllActivities(
+            @PageableDefault(size = 2) Pageable pageable,
+            PagedResourcesAssembler<ActivityResponseDto> assembler) {
 
         Pageable sortedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                sort
+                Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("updatedAt")
+                )
         );
 
-        return ResponseEntity.ok(
-                activityService.getActivities(sortedPageable)
-        );
+        Page<ActivityResponseDto> activities =
+                activityService.getActivities(sortedPageable);
+
+        return ResponseEntity.ok(assembler.toModel(activities));
     }
 }
