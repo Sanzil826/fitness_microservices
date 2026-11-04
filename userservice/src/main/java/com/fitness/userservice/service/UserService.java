@@ -9,6 +9,9 @@ import com.fitness.userservice.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 
 @Service
 @Slf4j
@@ -39,11 +42,13 @@ public class UserService {
 //        }
 
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new DuplicateResourceException("Email already exists!");
+            Optional<UserEntity> userFound = userRepository.findByEmail(request.getEmail());
+            return mapToDto(userFound.get());
         }
 
         UserEntity user = new UserEntity();
         user.setEmail(request.getEmail());
+        user.setKeycloakId(request.getKeycloakId());
         user.setPassword(request.getPassword());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -56,6 +61,7 @@ public class UserService {
     private UserResponse mapToDto(UserEntity user){
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
+        userResponse.setKeycloakId(user.getKeycloakId());
         userResponse.setEmail(user.getEmail());
         userResponse.setFirstName(user.getFirstName());
         userResponse.setLastName(user.getLastName());
@@ -66,6 +72,6 @@ public class UserService {
 
     public Boolean existsByUserId(String userId) {
         log.info("Calling User Validation Api for userId: {} ", userId);
-        return userRepository.existsById(userId);
+        return userRepository.existsByKeycloakId(userId);
     }
 }

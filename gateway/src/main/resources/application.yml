@@ -1,30 +1,5 @@
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: user service
-              uri: lb://USERSERVICE
-              predicates:
-                - Path=/api/users/**
-
-            - id: activity service
-              uri: lb://ACTIVITYSERVICE
-              predicates:
-                - Path=/api/activities/**
-
-            - id: ai service
-              uri: lb://AISERVICE
-              predicates:
-                - Path=/api/recommendations/**
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-
-server:
-  port: 8080
+  config:
+    import: optional:configserver:http://localhost:8888
