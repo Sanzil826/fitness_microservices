@@ -17,10 +17,25 @@ public class ActivityMessageListener {
     private final RecommendationRepository recommendationRepository;
 
     @RabbitListener(queues = "activity.queue")
-    public void processActivity(Activity activity){
+    public void processActivity(Activity activity) {
+
         log.info("Received activity for processing: {}", activity.getId());
-//        log.info("Generated Recommendation: {}", activityAiService.generateRecommendation(activity));
-        Recommendation recommendation = activityAiService.generateRecommendation(activity);
-        recommendationRepository.save(recommendation);
+
+        try {
+            Recommendation recommendation =
+                    activityAiService.generateRecommendation(activity);
+
+            log.info("AI recommendation generated: {}", recommendation);
+
+            recommendationRepository.save(recommendation);
+
+            log.info("Recommendation saved successfully for activity: {}",
+                    activity.getId());
+
+        } catch (Exception e) {
+            log.error("Failed to process activity: {}", activity.getId(), e);
+
+            throw e;
+        }
     }
 }
