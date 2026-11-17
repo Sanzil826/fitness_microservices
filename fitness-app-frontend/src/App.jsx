@@ -1,37 +1,110 @@
-import { Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "react-oauth2-code-pkce";
 import { useDispatch } from "react-redux";
-import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from "react-router";
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  replace,
+} from "react-router";
 import { setCredentials } from "./store/authSlice";
-import { authConfig } from './authConfig';
+import { authConfig } from "./authConfig";
+import ActivityDetail from "./components/ActivityDetail";
+import ActivityForm from "./components/ActivityForm";
+import ActivityList from "./components/ActivityList";
+
+const ActivitiesPage = () => {
+  return (
+    <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
+      <ActivityForm onActivityAdded={() => window.location.reload()} />
+      <ActivityList />
+    </Box>
+  );
+};
 
 function App() {
-  const { token, tokenData, logIn, logOut, isAuthenticated } = useContext(AuthContext);
+  const { token, tokenData, logIn, logOut, isAuthenticated } =
+    useContext(AuthContext);
   const dispatch = useDispatch();
-  const[authReady, setAuthReady] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
-  useEffect(()=>{
-    if(token){
-      dispatch(setCredentials({token, user: tokenData}));
+  useEffect(() => {
+    if (token) {
+      dispatch(setCredentials({ token, user: tokenData }));
       setAuthReady(true);
     }
-  },[token, tokenData, dispatch]);
+  }, [token, tokenData, dispatch]);
 
   return (
     <Router>
-      {!token? (<Button variant="contained" 
-              sx={{color:"#dc004e"}}
-              onClick={()=>{
-                logIn();
-              }}>Login</Button>):(
-                <div>
-                  <pre>{JSON.stringify(tokenData, null, 2)}</pre>
-                </div>
-              )}
-      
+      {!token ? (
+        <Box
+          sx={{
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h4" gutterBottom>
+            Welcome to the Fitness Tracker App
+          </Typography>
+          <Typography variant="subtitle1" sx={{ mb: 3 }}>
+            Please login to access your activities
+          </Typography>
+          <Button
+            variant="contained"
+            sx={{ color: "white" }}
+            onClick={() => {
+              logIn();
+            }}
+          >
+            Login
+          </Button>
+        </Box>
+      ) : (
+        <Box component="section" sx={{ p: 2, border: "1px dashed grey" }}>
+          <Button
+            variant="contained"
+            sx={{ color: "secondary" }}
+            onClick={() => {
+              logOut();
+            }}
+          >
+            LogOut
+          </Button>
+          <Routes>
+            <Route path="/activities" element={<ActivitiesPage />} />
+            <Route path="/activities/:id" element={<ActivityDetail />} />
+            <Route
+              path="/"
+              element={
+                token ? (
+                  <Navigate to="/activities" replace />
+                ) : (
+                  <div>Welcome! Please Login</div>
+                )
+              }
+            />
+          </Routes>
+        </Box>
+      )}
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

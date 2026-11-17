@@ -23,7 +23,6 @@ spring:
               uri: lb://AISERVICE
               predicates:
                 - Path=/api/recommendations/**
-
 eureka:
   client:
     serviceUrl:

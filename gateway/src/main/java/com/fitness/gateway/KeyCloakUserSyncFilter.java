@@ -6,6 +6,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -24,6 +25,10 @@ public class KeyCloakUserSyncFilter implements WebFilter {
             ServerWebExchange exchange //contains http req and res info
             , WebFilterChain chain)// allows the re to continue to next fileter or destination handler
     {
+        if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
         String token =  exchange.getRequest().getHeaders().getFirst("Authorization");
         String userId = exchange.getRequest().getHeaders().getFirst("X-USER-ID");
         RegisterRequest request = getUserDetails(token);
